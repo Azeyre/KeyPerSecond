@@ -1,11 +1,13 @@
 var vStart = false;
 var nTouche = 20;
+var dTap = 0;
 var mTouche = [];
 var average = 0;
 var delay;
 var total = 0;
 var tStart = 0;
 var bpm;
+var lastCode = 0;
 
 function setup (){
   var canvas = document.getElementById("canvas");
@@ -23,10 +25,15 @@ window.onresize = function(event){
 document.body.onkeypress = function(event){
   event = event || window.event;
   if(vStart === true && nTouche > 0 && event.keyCode === 120 || vStart === true && nTouche > 0 && event.keyCode === 99) {
-    mTouche.push(Date.now() - delay);
-    delay = Date.now();
-    nTouche--;
-    draw();
+    if(event.keyCode != lastCode){
+      lastCode = event.keyCode;
+      mTouche.push(Date.now() - delay);
+      delay = Date.now();
+      dTap++;
+      nTouche--;
+      draw();
+      if(dTap >= 2) checkDoubleTap(dTap);
+    }
     //console.log("Y");
   } if(nTouche === 0){
     stop();
@@ -52,6 +59,7 @@ function draw(){
 function start(){
   if(vStart === false){
     mTouche = [];
+    dTap = 0;
     average = 0;
     total = 0;
     delay = Date.now();
@@ -79,4 +87,11 @@ function calculAverage(){
   average = total / 20;
   bpm = ((60000 * 20) / total) / 4;
   draw();
+}
+
+function checkDoubleTap(x){
+  var actual = mTouche[x - 2] + mTouche[x - 1];
+  if(actual <= 70){
+    alert("Stop double tap.")
+  }
 }
